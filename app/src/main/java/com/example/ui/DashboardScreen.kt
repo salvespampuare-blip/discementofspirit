@@ -2,6 +2,7 @@ package com.example.ui
 
 import android.widget.Toast
 import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -284,15 +286,23 @@ fun DashboardScreen(
                     // SEEKER TABS
                     AssistChip(
                         onClick = { activeTab = "LOGS" },
-                        label = { Text("Daily Journal Entries") },
+                        label = { Text("Daily Journal") },
                         leadingIcon = { Icon(Icons.Default.Add, contentDescription = "Daily Log", modifier = Modifier.size(16.dp)) },
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = if (activeTab == "LOGS") MaterialTheme.colorScheme.primaryContainer else Color.Transparent
                         )
                     )
                     AssistChip(
+                        onClick = { activeTab = "GUIDE" },
+                        label = { Text("Discernment Guide") },
+                        leadingIcon = { Icon(Icons.Default.Info, contentDescription = "Discernment Guide", modifier = Modifier.size(16.dp)) },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = if (activeTab == "GUIDE") MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+                        )
+                    )
+                    AssistChip(
                         onClick = { activeTab = "ALERTS" },
-                        label = { Text("Custom Security Alerts") },
+                        label = { Text("Security Alerts") },
                         leadingIcon = { Icon(Icons.Default.Warning, contentDescription = "Alert Rules", modifier = Modifier.size(16.dp)) },
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = if (activeTab == "ALERTS") MaterialTheme.colorScheme.primaryContainer else Color.Transparent
@@ -345,6 +355,7 @@ fun DashboardScreen(
                             },
                             onDeleteLog = { id -> viewModel.deleteLog(id) }
                         )
+                        "GUIDE" -> DiscernmentGuideView()
                         "ALERTS" -> CustomAlertsView(
                             thresholdDays = alertThresholdDays,
                             notifyOnSecret = notifyOnSecretHiding,
@@ -1287,7 +1298,7 @@ fun ParishApiSyncView(
                     .height(48.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.Send, contentDescription = "Sync")
+                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Sync")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Establish Hook & Synchronize Data")
             }
@@ -1498,3 +1509,639 @@ fun StripeBillingView(
         }
     }
 }
+
+// ==========================================
+// 6. DISCERNMENT GUIDE & INSTRUCTIONS VIEW
+// ==========================================
+@Composable
+fun DiscernmentGuideView() {
+    var guideTab by remember { mutableStateOf("STEPS") } // "STEPS", "RULES", "STORIES"
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            // Summary Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Spiritual Guide Icon",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(36.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text(
+                            text = "Interior Compass Manual",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Text(
+                            text = "Learn Ignatian rules and structured steps to make inspired, balanced choices under the Holy Spirit.",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            // Guide sub tab selectors
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
+                    .padding(4.dp)
+            ) {
+                listOf(
+                    "STEPS" to "4 Steps",
+                    "RULES" to "14 Ignatian Rules",
+                    "STORIES" to "Saints' Wisdom"
+                ).forEach { (tabId, tabName) ->
+                    val isSelected = guideTab == tabId
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
+                            .clickable { guideTab = tabId }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = tabName,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+
+        when (guideTab) {
+            "STEPS" -> {
+                item {
+                    Text(
+                        text = "The 4 Steps of Discernment",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                item {
+                    StepCard(
+                        stepNumber = "Step 1",
+                        title = "Be Aware of Yourself",
+                        icon = Icons.Default.Person,
+                        description = "Sincere discernment begins with quiet self-knowledge and acceptance of how you stand before Creator.",
+                        details = listOf(
+                            "Talk to Someone: God often speaks through the wisdom of mature counselors, pastors, or parish guides.",
+                            "Find Solitude: carves out quiet times to invite God directly into your decision process.",
+                            "Know Yourself: assess your likes, dislikes, dreams, limitations, and how you behave under sudden stress.",
+                            "Accept Yourself: rest in the peace that God created you and loves you exactly as you are."
+                        )
+                    )
+                }
+
+                item {
+                    StepCard(
+                        stepNumber = "Step 2",
+                        title = "Be in Touch with God",
+                        icon = Icons.Default.Favorite,
+                        description = "Create a sincere, honest relationship with God by hiding nothing and developing steady prayer.",
+                        details = listOf(
+                            "Pour out EVERYTHING: Tell God what you desire and what you fear without holding back.",
+                            "Learn to Listen: pay attention to interior thoughts, memories, and especially feelings of love, joy, or deep peace.",
+                            "Develop steady habits: experiment with different prayer forms until you feel connected with the divine.",
+                            "Seek 'Thy Will': explicitly pray for the strength and detachment to follow what God desires most for you."
+                        )
+                    )
+                }
+
+                item {
+                    StepCard(
+                        stepNumber = "Step 3",
+                        title = "The Decision-Making Process",
+                        icon = Icons.Default.Edit,
+                        description = "Analyze choices systematically based on reason first, then examine your emotional resonance.",
+                        details = listOf(
+                            "Start with known facts: list out pros and cons of morally acceptable options on a checklist.",
+                            "Eliminate the illicit: ensure plans do not contradict scripture or the Church’s moral teachings.",
+                            "Examine deathbed and judgment day perspectives: ask what you would wish you had chosen when looking back.",
+                            "Look at the big picture: project what effect your decision will have 5 and 10 years from now."
+                        )
+                    )
+                }
+
+                item {
+                    StepCard(
+                        stepNumber = "Step 4",
+                        title = "Confirm Your Decision",
+                        icon = Icons.Default.CheckCircle,
+                        description = "Discernment is an ongoing loop of action, monitoring outcomes, and finding persistent peace.",
+                        details = listOf(
+                            "Check out the fruits: examine if the outcomes (words, emotions, actions) are good, or if they bring anxiety and division.",
+                            "Identify deep peace: a correct choice always leads to a feeling of peace and satisfaction, not just temporary relief.",
+                            "Get involved in service: share your gifts and talents within a community of service.",
+                            "Keep iterating: personal vocation unfolds throughout life; adapt plans when new situations arise."
+                        )
+                    )
+                }
+            }
+
+            "RULES" -> {
+                item {
+                    Text(
+                        text = "St. Ignatius's 14 First Week Rules",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                item {
+                    // Quick stats summary
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Text(
+                                text = "CORE DEFINITIONS",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "• Spiritual Consolation (Rule 3): An interior movement where the soul is inflamed with divine love, showing tears, joy, faith, hope, and peace.",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            Text(
+                                text = "• Spiritual Desolation (Rule 4): Darkness of soul, disturbance, low earthly movements, sadness, doubts, tepidity, and isolation.",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 1",
+                        title = "Sensual Delights vs Sting of Conscience",
+                        originalSummary = "In souls going from mortal sin to mortal sin, the enemy proposes apparent pleasure, while the good spirit bites and stings their conscience through moral judgment.",
+                        guidanceText = "If you are sliding downward, realize that feelings of comfort in bad habits come from the enemy, while the painful bite of guilt is actually God inviting you back."
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 2",
+                        title = "Obstacles vs Courage of the progressive soul",
+                        originalSummary = "In souls actively purifying sin and rising from good to better, the enemy bites and saddens with false reasons, while the good spirit gives courage, tearful consolations, and quiet peace.",
+                        guidanceText = "If you are trying to do good, expect obstacles and sadness to be from the enemy trying to arrest your progress. Trust that sweetness, inspirations, and ease of heart are from God."
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 3",
+                        title = "Spiritual Consolation",
+                        originalSummary = "An interior movement caused by God, leaving the soul inflamed with love, sheding tears of devotion, and experiencing an increase of hope, faith, charity, and quiet.",
+                        guidanceText = "Praise God for this trial-free season. Use this time with deep gratitude to store up fuel and plan defenses for the desolation that will inevitably follow."
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 4",
+                        title = "Spiritual Desolation",
+                        originalSummary = "A state of soul opposite to consolation: darkness, disturbance, attraction to cheap or base things, sadness, tepidity, and a feeling of separation from your Creator.",
+                        guidanceText = "Do not panic or despair. Desolation is a normal part of spiritual life. God is testing your love to build stamina and humility."
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 5",
+                        title = "Never make a change or resolution",
+                        originalSummary = "In time of desolation, never alter any proposal or choice made during consolation. The bad spirit counsels in desolation, whose advice leads to ruin.",
+                        guidanceText = "CRITICAL RULE: If you feel separated, dry, or frustrated, freeze all big decisions! Keep executing old plans exactly. The dark clouds will pass soon, bringing clear light."
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 6",
+                        title = "React Intensely against Desolation",
+                        originalSummary = "Although we must not alter our proposals, we can and should change ourselves against desolation by doubling prayer, meditation, self-examination, and penance.",
+                        guidanceText = "Be proactive! Fight dryness by spending more time on scripture prayer or journaling. Sitting in passive gloom feeds the enemy."
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 7",
+                        title = "Expect God is refining you",
+                        originalSummary = "Consider that the Lord has left you to be tested in your natural powers to resist temptation, but always leaves sufficient grace for your salvation.",
+                        guidanceText = "You are not abandoned. God simply pulled back His sensible feeling of warmth so that you learn to stand on your own feet under grace."
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 8",
+                        title = "Cultivate Patience",
+                        originalSummary = "He who is desolated must work to be in patience, which opposes the vexations of desolation, and remember that he will soon be consoled.",
+                        guidanceText = "Maintain a patient view of history. Say to yourself: 'This is temporary. Happiness will return shortly.'"
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 9",
+                        title = "Three Causes of Desolation",
+                        originalSummary = "Desolation occurs: 1) because we are tepid or negligent in exercises; 2) as a trial to see how much we serve without rewards; 3) to give us humility and realize consolation is a gift.",
+                        guidanceText = "Do an audit! Ask: Have I skipped daily prayer (Rule 9.1)? Am I being tested (Rule 9.2)? Or do I need to learn that I cannot produce joy on my own command (Rule 9.3)?"
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 10",
+                        title = "Store consolation strength",
+                        originalSummary = "Let the one in consolation think how he will conduct himself when desolation comes after, gathering new strength for that trial.",
+                        guidanceText = "Write down insights, experiences, and promises while you are happy. You will need to read these letters to yourself when darkness visits."
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 11",
+                        title = "Humility vs Courageous Confidence",
+                        originalSummary = "Let the consoled humble himself, remembering how small he is without grace. Let the desolated take strength that God's sufficient grace supports him.",
+                        guidanceText = "Keep your balance. In joy, don't get arrogant. In sorrow, don't get despairing."
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 12",
+                        title = "Stand Firm (The Weapon of Weakness)",
+                        originalSummary = "The enemy acts like a weak opponent when confronted firmly, but becomes fierce if you lose heart. Confront temptations directly to make him flee.",
+                        guidanceText = "Tackle fear instantly! The enemy's power is an illusion that crumbles when you act with courage and turn your face to God."
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 13",
+                        title = "Expose Secrets (Tactic of the False Lover)",
+                        originalSummary = "The enemy desires his suggestions to remain secret, in the manner of a false lover. When revealed to a trusted confessor or counselor, his wiles are neutralized.",
+                        guidanceText = "Break the spell of isolation! If you are hiding thoughts or feel too embarrassed to talk, go and tell your spiritual director immediately. Light completely destroys his hold."
+                    )
+                }
+
+                item {
+                    RuleAccordion(
+                        number = "Rule 14",
+                        title = "Secure Weak Links (Tactic of the Commander)",
+                        originalSummary = "The enemy acts like a military leader examining a fortress to attack at its weakest point of virtue.",
+                        guidanceText = "Do a vulnerability scan. Find your weakest link—be it anger, screens, gossip, or sloth—and double your guards there to prevent surprise breach."
+                    )
+                }
+            }
+
+            "STORIES" -> {
+                item {
+                    Text(
+                        text = "Historical Struggles of the Saints",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                item {
+                    SaintStoryCard(
+                        saintName = "St. Ignatius of Loyola",
+                        struggleTitle = "The Origin of Rules: Recovery at Loyola",
+                        quote = "\"When he thought of the things of the world, he took much delight in them, but afterwards, he was dry and discontented. When he thought of the holy saints, he remained content and happy...\"",
+                        analysisText = "While recovering from a cannonball wound, Ignatius noticed a lingering effect: worldly fantasies left him dry, while sacred desires left him peaceful and satisfied. This is the seed of the rules of discernment: tracking how feelings behave AFTER the thoughts pass."
+                    )
+                }
+
+                item {
+                    SaintStoryCard(
+                        saintName = "St. Augustine",
+                        struggleTitle = "Intense Indecision: The Garden Dialogue",
+                        quote = "\"I was held back by mere trifles... whispering 'Are you going to dismiss us?' But on the other side stood Continence, modest and smiling: 'Can you not do what these men and women do?'\"",
+                        analysisText = "Augustine felt the bite of conscience as he prepared to turn his life around. Rule 1 warns that the enemy proposes sensual attachments to delay conversion, but radical surrender to God's love breaks the chains completely."
+                    )
+                }
+
+                item {
+                    SaintStoryCard(
+                        saintName = "St. Thérèse of Lisieux",
+                        struggleTitle = "The Wedding Eve Storm: False Vocation Doubt",
+                        quote = "\"Unbelievable doubts entered my mind... Carmel was a dream, a chimera. The devil assured me it wasn't for me... I made the Novice Mistress come out and told her. Instantly, the doubts fled.\"",
+                        analysisText = "Right before pronouncing her vows, St. Thérèse went through a terrible spiritual dark night (Rule 13). By breaking the secret pattern and immediately exposing the thoughts to her guide, she put the enemy to flight and entered supreme peace."
+                    )
+                }
+
+                item {
+                    SaintStoryCard(
+                        saintName = "Thomas Merton",
+                        struggleTitle = "The Physical Blockade: Father Philotheus's Door",
+                        quote = "\"I walked bravely to his door, but within 6 feet, someone stopped me. Something jammed in my will. I couldn't walk a step... but after intense prayer, I went, asked, and the scales fell of my eyes.\"",
+                        analysisText = "Merton describes a paralyzing blockade right before speaking to a counselor. This demonstrates how the enemy resists exposure. Yet, acting against this resistance with a single act of willpower, he discovered peace."
+                    )
+                }
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+fun StepCard(
+    stepNumber: String,
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    description: String,
+    details: List<String>
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { expanded = !expanded },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = title,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stepNumber.uppercase(),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.primary,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        text = title,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = "Expand Detail",
+                    tint = MaterialTheme.colorScheme.outline
+                )
+            }
+
+            Text(
+                text = description,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 10.dp)
+            )
+
+            AnimatedVisibility(visible = expanded) {
+                Column(modifier = Modifier.padding(top = 12.dp)) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+                    Spacer(modifier = Modifier.height(10.dp))
+                    details.forEach { detail ->
+                        Row(modifier = Modifier.padding(bottom = 8.dp)) {
+                            Text(
+                                text = "•",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                            Text(
+                                text = detail,
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RuleAccordion(
+    number: String,
+    title: String,
+    originalSummary: String,
+    guidanceText: String
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { expanded = !expanded },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+    ) {
+        Column(modifier = Modifier.padding(14.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(60.dp)
+                        .height(32.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = number,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = title,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = "Expand Rules Detail",
+                    tint = MaterialTheme.colorScheme.outline
+                )
+            }
+
+            AnimatedVisibility(visible = expanded) {
+                Column(modifier = Modifier.padding(top = 12.dp)) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = "THE RULE TEXT:",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    Text(
+                        text = originalSummary,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp),
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "PRACTICAL SPIRITUAL TACTIC:",
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = guidanceText,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SaintStoryCard(
+    saintName: String,
+    struggleTitle: String,
+    quote: String,
+    analysisText: String
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = saintName.uppercase(),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.primary,
+                letterSpacing = 1.sp
+            )
+            Text(
+                text = struggleTitle,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Surface(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = quote,
+                    fontSize = 12.sp,
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = "PRACTICAL INSIGHT:",
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.outline
+            )
+            Text(
+                text = analysisText,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+    }
+}
+
