@@ -1,0 +1,6 @@
+{
+  "name": "Spiritual Discernment",
+  "description": "Ignatian Discernment of Spirits log and machine learning pattern analyzer, providing console-based exports, Stripe billing simulation, spiritual alert customization, and director collaboration features.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
